@@ -41,7 +41,7 @@ def pad_wav(waveform, segment_length):
     elif waveform_length < segment_length:
         temp_wav = np.zeros((1, segment_length))
         temp_wav[:, :waveform_length] = waveform
-    return temp_wav
+    return temp_wav[0]
 
 def normalize_wav(waveform):
     waveform = waveform - np.mean(waveform)
@@ -64,13 +64,11 @@ def read_wav_file(filename, segment_length):
     return waveform
 
 
-def wav_to_fbank(filename, target_length=1024, fn_STFT=None):
+def wav_to_fbank(waveform, target_length=1024, fn_STFT=None):
     assert fn_STFT is not None
 
-    # mixup
-    waveform = read_wav_file(filename, target_length * 160)  # hop size is 160
-
-    waveform = waveform[0, ...]
+    waveform = waveform.numpy()
+    waveform = normalize_wav(waveform)
     waveform = torch.FloatTensor(waveform)
 
     fbank, log_magnitudes_stft, energy = get_mel_from_wav(waveform, fn_STFT)
