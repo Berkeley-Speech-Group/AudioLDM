@@ -158,6 +158,14 @@ class LatentDiffusion(DDPM):
         return c
 
     @torch.no_grad()
+    def vae_encode(self, x):
+        x = x.cuda()
+        encoder_posterior = self.encode_first_stage(x)
+        z = self.get_first_stage_encoding(encoder_posterior).detach()
+
+        return z
+
+    @torch.no_grad()
     def get_input(
         self,
         batch,
@@ -695,7 +703,7 @@ class LatentDiffusion(DDPM):
                     unconditional_conditioning=unconditional_conditioning,
                     use_plms=use_plms,
                 )
-                
+
                 if(torch.max(torch.abs(samples)) > 1e2):
                     samples = torch.clip(samples, min=-10, max=10)
                     
